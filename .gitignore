@@ -1,0 +1,17 @@
+# Segredos e tokens — nunca versionar
+output/tokens.json
+output/msal_cache.json
+output/azure_function/local.settings.json
+
+# Ambiente Python
+output/.venv/
+output/azure_function/.python_packages/
+__pycache__/
+*.pyc
+
+# Configuração local do Claude Code
+.claude/settings.local.json
+
+# Diversos
+*.zip
+.DS_Store
