@@ -1,27 +1,24 @@
 # Expenses Spreadsheet Automation
 
-Automação pessoal que transforma notas de gastos escritas no iPhone (app Notas) em linhas
-lançadas automaticamente numa planilha do Excel Online, sem digitação manual.
+Seleciono o texto de um gasto no Bloco de Notas do iPhone, toco em **Compartilhar**, e
+ele cai sozinho como uma nova linha na minha planilha de gastos — já com categoria,
+banco e valor identificados, sem digitar nada na planilha.
 
-## Como funciona
+## O que o workflow faz
+
+1. **Eu** seleciono uma ou mais linhas de gasto já escritas na nota e compartilho com o Shortcut.
+2. O **Shortcut** só pega esse texto selecionado e envia para a automação — nenhuma lógica fica nele.
+3. A **Azure Function** interpreta cada linha (data, destino, categoria, banco, forma de
+   pagamento) e converte moeda estrangeira para BRL quando necessário.
+4. Via **Microsoft Graph API**, cada gasto é escrito na primeira linha vazia da aba do
+   mês certo, na minha planilha de Finanças no OneDrive.
 
 ```
-iPhone (Apple Shortcuts)
-        │ seleciona o texto da nota e toca em "Log Expenses" / "Gastos"
-        ↓ POST { "note": "texto bruto da nota" }
-Azure Function (Python)
-        │ interpreta cada linha, identifica categoria, banco, forma de pagamento
-        │ e converte moeda estrangeira para BRL quando necessário
-        ↓
-Microsoft Graph API
-        │ escreve cada gasto na primeira linha vazia da aba do mês correspondente
-        ↓
-Planilha de Finanças (OneDrive)
+iPhone (Bloco de Notas) → Shortcut "Compartilhar" → Azure Function → Graph API → Planilha
 ```
 
-O Shortcut só captura o texto selecionado e envia. Toda a lógica de interpretação
-(parsing), categorização e conversão de moeda vive no Azure Function
-(`output/azure_function/function_app.py`).
+Toda a lógica de interpretação (parsing), categorização e conversão de moeda vive no
+Azure Function (`output/azure_function/function_app.py`).
 
 ## Formato das notas
 
