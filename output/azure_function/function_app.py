@@ -29,6 +29,8 @@ CATEGORY_MAP = {
     "comida":       "Comida - dia a dia",
     "saida":        "Saída entre amigos",
     "saida amigos":        "Saída entre amigos",
+    "viagem":       "Passagens de Viagem",
+    "passagem":     "Passagens de Viagem",
     "viagem passagem":       "Passagens de Viagem",
     "viagem acomodacao":   "Acomodação em Viagem",
     "acomodacao":   "Acomodação em Viagem",
@@ -57,6 +59,7 @@ CATEGORY_MAP = {
     "coisas para casa": "Coisas para Casa",
     "faixaazul":    "Faixa Azul",
     "faixa azul":   "Faixa Azul",
+    "aluguel":      "Aluguel",
 }
 
 # Words that mark a value as a foreign currency instead of BRL (Reais).
@@ -84,36 +87,64 @@ def _convert_to_brl(valor: float, currency: str) -> float:
     r.raise_for_status()
     return round(r.json()["rates"]["BRL"], 2)
 
+def _clean(text) -> str:
+    """Trims leading/trailing spaces and collapses repeated spaces, so SUMIF-style
+    formulas in the spreadsheet match the category text exactly."""
+    return " ".join(str(text).split()) if text is not None else ""
+
+
 def _lookup_category(tag: str) -> str:
     """Resolves a category tag with tolerance for case, plurals, and small typos."""
     if not tag:
-        return tag
-    lower = tag.strip().lower()
+        return ""
+    lower = _clean(tag).lower()
     if lower in CATEGORY_MAP:
         return CATEGORY_MAP[lower]
     singular = lower[:-1] if lower.endswith("s") else lower
     if singular in CATEGORY_MAP:
         return CATEGORY_MAP[singular]
     matches = difflib.get_close_matches(lower, CATEGORY_MAP.keys(), n=1, cutoff=0.75)
-    return CATEGORY_MAP[matches[0]] if matches else tag
+    return CATEGORY_MAP[matches[0]] if matches else _clean(tag)
 
 
 BANK_MAP = {
-    "nubank":   "Nubank",
-    "nu bank":  "Nubank",
-    "inter":    "Inter",
-    "ifood":    "Ifood Benefícios",
-    "alelo":    "Alelo",
-    "wise":     "Wise",
+    "nubank":    "Nubank",
+    "nu bank":   "Nubank",
+    "inter":     "Inter",
+    "ifood":     "Ifood Benefícios",
+    "alelo":     "Alelo",
+    "wise":      "Wise",
+    "revolut":   "Revolut",
+    "deblock":   "Deblock",
+    "redot pay": "Redot Pay",
+    "redotpay":  "Redot Pay",
+    "redot":     "Redot Pay",
+    "outros":    "Outros",
+    "outro":     "Outros",
 }
+
+
+def _lookup_bank(raw: str) -> str:
+    """Resolves a bank name with tolerance for small typos; unknown banks become 'Outros'."""
+    lower = _clean(raw).lower()
+    if not lower:
+        return ""
+    if lower in BANK_MAP:
+        return BANK_MAP[lower]
+    matches = difflib.get_close_matches(lower, BANK_MAP.keys(), n=1, cutoff=0.75)
+    return BANK_MAP[matches[0]] if matches else "Outros"
+
 
 # Payment keywords that appear INLINE after the bank name (no parentheses needed)
 PAYMENT_INLINE = {
-    "pix":     "Pix",
-    "crédito": "Cartão de Crédito",
-    "credito": "Cartão de Crédito",
-    "débito":  "Cartão de Débito",
-    "debito":  "Cartão de Débito",
+    "pix":      "Pix",
+    "dinheiro": "Dinheiro",
+    "crédito":  "Cartão de Crédito",
+    "credito":  "Cartão de Crédito",
+    "débito":   "Cartão de Débito",
+    "debito":   "Cartão de Débito",
+    "papi":     "Papi",
+    "cami":     "Cami",
 }
 
 
@@ -188,7 +219,7 @@ def parse_note(note_text: str, year: int = None) -> list:
             valor_original = valor
             valor = _convert_to_brl(valor, moeda)
 
-        # Check if the last word is an inline payment keyword (e.g. "pix", "crédito")
+        # Check if the last word is an inline payment keyword (e.g. "pix", "crédito", "dinheiro", "papi")
         if rest and rest[-1].lower() in PAYMENT_INLINE:
             pagamento = PAYMENT_INLINE[rest[-1].lower()]
             banco_bruto = " ".join(rest[:-1]).lower().strip()
@@ -200,11 +231,7 @@ def parse_note(note_text: str, year: int = None) -> list:
             pagamento = "Cartão de Crédito"
             banco_bruto = " ".join(rest).lower().strip()
 
-        if banco_bruto == "dinheiro":
-            banco = ""
-            pagamento = "Dinheiro"
-        else:
-            banco = BANK_MAP.get(banco_bruto, banco_bruto.title() if banco_bruto else "")
+        banco = _lookup_bank(banco_bruto)
 
         # Values in the spreadsheet are always negative
         if valor > 0:
@@ -286,11 +313,11 @@ def get_used_range(token: str, file_id: str, sheet: str) -> dict:
 
 def get_motivo_colors(token: str, file_id: str, sheet: str) -> dict:
     """
-    Reads the Motivos Disponíveis column (L2:L16) and returns a map of
+    Reads the Motivos Disponíveis column (L2:L30) and returns a map of
     {motivo_text: "#RRGGBB"} by reading the fill color of each cell.
     """
     r = requests.get(
-        f"{GRAPH}/me/drive/items/{file_id}/workbook/worksheets/{sheet}/range(address='L2:L16')",
+        f"{GRAPH}/me/drive/items/{file_id}/workbook/worksheets/{sheet}/range(address='L2:L30')",
         headers=_h(token),
     )
     r.raise_for_status()
@@ -298,7 +325,7 @@ def get_motivo_colors(token: str, file_id: str, sheet: str) -> dict:
 
     color_map = {}
     for i, row in enumerate(values):
-        motivo = str(row[0]).strip() if row and row[0] not in (None, "") else None
+        motivo = _clean(row[0]) if row and row[0] not in (None, "") else None
         if not motivo:
             continue
         excel_row = i + 2
@@ -414,16 +441,17 @@ def write_expenses_to_sheet(token: str, file_id: str, sheet: str,
         if valor > 0:
             valor = -valor
 
-        destino     = expense.get("destino", "")
-        motivo      = expense.get("motivo", "")
-        infos_extra = expense.get("infos_extra", destino)
+        # Text cells are cleaned so formulas comparing text (e.g. SUMIF on Motivo) match exactly
+        destino     = _clean(expense.get("destino", ""))
+        motivo      = _clean(expense.get("motivo", ""))
+        infos_extra = _clean(expense.get("infos_extra", destino))
 
         row_data = [
             destino,                          # B — Destino
             expense.get("data", today),       # C — Data
             motivo,                           # D — Motivo
-            expense.get("banco", ""),         # E — Banco Usado
-            expense.get("pagamento", ""),     # F — Modo de Pagamento
+            _clean(expense.get("banco", "")),     # E — Banco Usado
+            _clean(expense.get("pagamento", "")), # F — Modo de Pagamento
             infos_extra,                      # G — Infos Extra
             valor,                            # H — Valor
         ]

@@ -43,7 +43,7 @@ protetor solar farmácia [higiene]: 38,90 Nubank
 
 **Categorias disponíveis:** `[comida]` `[saida]` `[viagem]` `[acomodacao]` `[higiene]`
 `[transporte]` `[roupas]` `[lazer]` `[fitness]` `[estudos]` `[burocracia]`/`[trabalho]`
-`[telefone]` `[presentes]` `[investimentos]` `[casa]` `[faixaazul]`
+`[telefone]` `[presentes]` `[investimentos]` `[casa]` `[faixaazul]` `[aluguel]`
 
 **Gastos em outra moeda:** escreva `euro`/`eur`, `dolar`/`dol`/`usd` ou `lira`/`try` logo
 após o valor (ex: `50 euro Wise`). O Function converte para BRL automaticamente via
@@ -63,7 +63,7 @@ A estrutura esperada em cada aba mensal é:
 | C      | Data                  | Data no formato DD/MM/AAAA                                                                                            |
 | D      | `Motivo`            | Categoria expandida (ex: "Comida - dia a dia"), vem da coluna L os motivos disponíveis                               |
 | E      | `Banco Usado`       | Banco normalizado (ex: "Nubank")                                                                                      |
-| F      | `Modo de Pagamento` | "Cartão de Crédito", "Cartão de Débito", "Pix", "Dinheiro"                                                        |
+| F      | `Modo de Pagamento` | "Cartão de Crédito", "Cartão de Débito", "Pix", "Dinheiro", "Papi", "Cami"                                                   |
 | G      | `Infos Extra`       | Palavras seguintes antes de `[categoria]` (ex: `compras do dia`); cópia do Destino se só houver uma palavra         |
 | H      | Valor                 | Valor negativo (ex: -15,00)                                                                                           |
 | I+     | Saldo Total           | Fórmulas — não tocadas                                                                                                |
@@ -289,6 +289,6 @@ Segure o Shortcut → **Compartilhar** → **Adicionar à Tela de Início** → 
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | Function retorna erro 500 com "refresh_token" na mensagem | Token expirou (90 dias sem uso). Rode `test_graph_api.py` novamente e faça upload do novo `tokens.json` para o blob |
 | Categoria ainda não reconhecida após tentativas (maiúscula, plural, typo) | Adicione a tag em `CATEGORY_MAP` no `function_app.py` e faça redeploy                          |
-| Banco não reconhecido                                    | Adicione o mapeamento em `BANK_MAP` no `function_app.py` e faça redeploy                                            |
+| Banco gravado como "Outros" sem querer                   | Adicione o mapeamento em `BANK_MAP` no `function_app.py` e faça redeploy                                            |
 | Virou o ano (2027)                                        | Atualize `FILE_PATH` nas variáveis do Function App para apontar para o novo arquivo                                   |
 | Cabeçalho de coluna diferente                            | O Function detecta pelo nome — se renomear uma coluna na planilha, atualize `detect_columns()` no código             |

@@ -33,7 +33,8 @@ jantar paris [saida]: 50 euro Wise (Pix)
 - Linha de data sozinha: `DD/MM`
 - Linha de gasto: `destino infos extra [categoria]: valor banco (forma)`
 - `[categoria]` aceita maiúsculas, plural e pequenos erros de digitação
-- `(Pix)` só quando for Pix; se omitido, o padrão é Cartão de Crédito
+- Forma de pagamento (`pix`, `debito`, `dinheiro`, `papi`, `cami`) depois do banco, com ou sem
+  parênteses; se omitida, o padrão é Cartão de Crédito
 - `dinheiro` no lugar do banco = pagamento em espécie
 
 Guia completo de sintaxe: [`resources/note-format-reference.md`](resources/note-format-reference.md).
@@ -58,6 +59,19 @@ Guia completo de sintaxe: [`resources/note-format-reference.md`](resources/note-
 | `[investimentos]` | Investimentos |
 | `[casa]` | Coisas para Casa |
 | `[faixaazul]` | Faixa Azul |
+| `[aluguel]` | Aluguel |
+
+O texto da categoria é gravado sempre sem espaços no início/fim e sem espaços duplos,
+para que fórmulas como `SOMASE` na planilha somem corretamente.
+
+## Bancos e formas de pagamento
+
+**Bancos:** `Nubank` · `Inter` · `Ifood` · `Alelo` · `Wise` · `Revolut` · `Deblock` ·
+`Redot Pay` · `Outros`. Banco não reconhecido é gravado como `Outros`.
+
+**Formas de pagamento:** `Pix` · `Dinheiro` · `Cartão de Crédito` · `Cartão de Débito` ·
+`Papi` · `Cami`. Escreva a forma depois do banco, com ou sem parênteses
+(`15 Nubank pix`, `50 Nubank (Papi)`, `8 dinheiro`). Se omitida, o padrão é Cartão de Crédito.
 
 ## Conversão automática de moeda
 

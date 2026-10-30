@@ -32,7 +32,7 @@ protetor solar farmácia [higiene]: 38,90 Nubank
 
 - **Data** → linha sozinha, formato `DD/MM`
 - **`[categoria]`** → obrigatório (para preencher MOTIVO na planilha); tolerante a maiúsculas, plural e pequenos erros de digitação
-- **`(Pix)`** → só escreva quando for Pix; omitir = Cartão de Crédito
+- **Forma de pagamento** (`pix`, `debito`, `papi`, `cami`...) → depois do banco; omitir = Cartão de Crédito
 - **`dinheiro`** no lugar do banco = pagamento em espécie
 - Valor pode ser inteiro (`15`) ou decimal com vírgula (`56,10`)
 - Banco não é case-sensitive (`nubank` = `Nubank`)
@@ -59,18 +59,29 @@ A tag aceita variações de maiúsculas, plural e pequenos erros (`[Comida]`, `[
 | `[investimentos]` | Investimentos |
 | `[casa]` | Coisas para Casa |
 | `[faixaazul]` | Faixa Azul |
+| `[aluguel]` | Aluguel |
+
+O texto da categoria é gravado sempre sem espaços extras (início, fim ou duplicados), para que as fórmulas de soma da planilha funcionem.
 
 ## Bancos disponíveis
 
-`Nubank` · `Inter` · `Ifood` · `Alelo` · `Wise` · `dinheiro`
+`Nubank` · `Inter` · `Ifood` · `Alelo` · `Wise` · `Revolut` · `Deblock` · `Redot Pay` · `Outros`
+
+Banco não reconhecido é gravado como `Outros`. Pequenos erros de digitação são tolerados (`nubnak` → `Nubank`).
 
 ## Formas de pagamento
 
 | Na nota | Na planilha |
 |---|---|
-| `(Pix)` | Pix |
-| `dinheiro` (banco) | Dinheiro |
+| `pix` / `(Pix)` | Pix |
+| `dinheiro` (no lugar do banco) | Dinheiro |
+| `credito` / `crédito` | Cartão de Crédito |
+| `debito` / `débito` | Cartão de Débito |
+| `papi` / `(Papi)` | Papi |
+| `cami` / `(Cami)` | Cami |
 | *(omitido)* | Cartão de Crédito |
+
+A forma de pagamento vem depois do banco, com ou sem parênteses: `50 Nubank papi` ou `50 Nubank (Papi)`. Sem banco também funciona: `50 papi`.
 
 ## Gastos em outra moeda (conversão automática para BRL)
 
