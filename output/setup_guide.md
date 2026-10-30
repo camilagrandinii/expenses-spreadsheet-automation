@@ -165,8 +165,8 @@ Blob Storage mais adiante (Passo 4.4).
 1. No portal Azure → **Criar um recurso** → buscar **Function App**
 2. Preencha:
    - **Assinatura:** sua assinatura (pode ser Pay-as-you-go free tier)
-   - **Grupo de recursos:** criar novo, ex: `gastos-rg`
-   - **Nome:** ex: `gastos-camila` (deve ser único globalmente)
+   - **Grupo de recursos:** criar novo, no meu caso `expenses-automation`
+   - **Nome:** no meu caso `camila-expenses-automation` (deve ser único globalmente)
    - **Plano:** Flex Consumption  ← suporta Python no Linux; Consumption (Windows) não suporta Python
    - **Runtime:** Python 3.11
    - **Região:** Brazil South ou East US
@@ -188,7 +188,7 @@ Deploy direto da pasta `azure_function/`:
 
 ```bash
 cd "output/azure_function"
-func azure functionapp publish gastos-camila --python
+func azure functionapp publish camila-expenses-automation --python
 ```
 
 ### 4.3 Configurar variáveis de ambiente
@@ -222,7 +222,7 @@ Clique em **Salvar** após adicionar.
 A URL terá este formato:
 
 ```
-https://gastos-camila.azurewebsites.net/api/add_expenses?code=XXXXXXXXXXXXXXXX
+https://camila-expenses-automation-ajbnf8e6g9frbkch.brazilsouth-01.azurewebsites.net/api/add_expenses?code=XXXXXXXXXXXXXXXX
 ```
 
 Guarde essa URL — ela vai no Shortcut.
@@ -246,7 +246,7 @@ São apenas 3 ações.
 **Ação 3 — configuração do POST:**
 
 - **Método:** POST
-- **URL:** `https://gastos-camila.azurewebsites.net/api/add_expenses?code=SEU_CODE`
+- **URL:** `https://camila-expenses-automation-ajbnf8e6g9frbkch.brazilsouth-01.azurewebsites.net/api/add_expenses?code=SEU_CODE`
 - **Cabeçalhos:** `Content-Type` = `application/json`
 - **Corpo:** JSON → selecione a variável `Dicionário` (da ação 2)
 
